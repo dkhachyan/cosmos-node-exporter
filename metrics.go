@@ -12,6 +12,7 @@ import (
 type NodeCollector struct {
 	latest_block_height *prometheus.Desc
 	latest_block_time   *prometheus.Desc
+	peers_count         *prometheus.Desc
 	rpcClient           *rpchttp.HTTP
 	ctx                 context.Context
 }
@@ -28,6 +29,10 @@ func NewNodeCollector(host string) (*NodeCollector, error) {
 		),
 		latest_block_time: prometheus.NewDesc("latest_block_time",
 			"Shows latest block time",
+			nil, nil,
+		),
+		peers_count: prometheus.NewDesc("peers_count",
+			"Peers count",
 			nil, nil,
 		),
 		rpcClient: rpcClient,
@@ -48,8 +53,16 @@ func (collector *NodeCollector) Collect(ch chan<- prometheus.Metric) {
 		log.Printf("Host %v is unreachable", collector.rpcClient.Remote())
 		return
 	}
+
+	netinfo, err := collector.getNetInfo()
+	if err != nil {
+		log.Printf("Host %v is unreachable", collector.rpcClient.Remote())
+		return
+	}
+
 	ch <- prometheus.MustNewConstMetric(collector.latest_block_height, prometheus.CounterValue, float64(status.SyncInfo.LatestBlockHeight))
 	ch <- prometheus.MustNewConstMetric(collector.latest_block_time, prometheus.CounterValue, float64(status.SyncInfo.LatestBlockTime.Unix()))
+	ch <- prometheus.MustNewConstMetric(collector.peers_count, prometheus.GaugeValue, float64(netinfo.NPeers))
 
 }
 
@@ -60,4 +73,12 @@ func (collector *NodeCollector) getStatus() (*coretypes.ResultStatus, error) {
 		return nil, err
 	}
 	return status, nil
+}
+
+func (collector *NodeCollector) getNetInfo() (*coretypes.ResultNetInfo, error) {
+	netinfo, err := collector.rpcClient.NetInfo(collector.ctx)
+	if err != nil {
+		return nil, err
+	}
+	return netinfo, nil
 }

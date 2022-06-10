@@ -1,0 +1,12 @@
+[Unit]
+Description=cosmos-node-exporter
+After=network-online.target
+
+[Service]
+User=root
+ExecStart=/root/go/bin/cosmos-node-exporter -host 127.0.0.1:26658
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
