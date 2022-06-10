@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	host := flag.String("host", "tcp://127.0.0.1:26658", "host to connect")
+	host := flag.String("host", "tcp://127.0.0.1:26657", "host to connect")
 	flag.Parse()
 
 	col, err := NewNodeCollector(*host)
