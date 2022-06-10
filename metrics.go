@@ -23,15 +23,15 @@ func NewNodeCollector(host string) (*NodeCollector, error) {
 		return nil, err
 	}
 	return &NodeCollector{
-		latest_block_height: prometheus.NewDesc("latest_block_height",
+		latest_block_height: prometheus.NewDesc("atom_latest_block_height",
 			"Shows latest block height",
 			nil, nil,
 		),
-		latest_block_time: prometheus.NewDesc("latest_block_time",
+		latest_block_time: prometheus.NewDesc("atom_latest_block_time",
 			"Shows latest block time",
 			nil, nil,
 		),
-		peers_count: prometheus.NewDesc("peers_count",
+		peers_count: prometheus.NewDesc("atom_peers_count",
 			"Peers count",
 			nil, nil,
 		),
@@ -44,6 +44,7 @@ func (collector *NodeCollector) Describe(ch chan<- *prometheus.Desc) {
 
 	ch <- collector.latest_block_height
 	ch <- collector.latest_block_time
+	ch <- collector.peers_count
 }
 
 func (collector *NodeCollector) Collect(ch chan<- prometheus.Metric) {
