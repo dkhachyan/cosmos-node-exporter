@@ -1,32 +1,20 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"log"
+	"net/http"
 
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	"github.com/tendermint/tendermint/rpc/coretypes"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
-
-func getStatus(host string) (*coretypes.ResultStatus, error) {
-	rpcClient, err := rpchttp.New(host)
-	if err != nil {
-		return nil, err
-	}
-
-	status, err := rpcClient.Status(context.TODO())
-	if err != nil {
-		return nil, err
-	}
-	return status, nil
-}
 
 func main() {
 	host := "tcp://127.0.0.1:26658"
-	status, err := getStatus(host)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println(status.SyncInfo.LatestBlockHeight)
+
+	col := NewNodeCollector(host)
+	prometheus.MustRegister(col)
+
+	http.Handle("/metrics", promhttp.Handler())
+	log.Printf("Beginning to serve on port :9001")
+	log.Fatal(http.ListenAndServe(":9001", nil))
 }
