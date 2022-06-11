@@ -4,7 +4,7 @@ After=network-online.target
 
 [Service]
 User=root
-ExecStart=/root/go/bin/cosmos-node-exporter -host 127.0.0.1:26657
+ExecStart=/root/go/bin/cosmos-node-exporter -host tcp://127.0.0.1:26657
 Restart=always
 RestartSec=3
 
